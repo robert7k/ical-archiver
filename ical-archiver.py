@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from io import BufferedReader, BufferedWriter
 from datetime import datetime
 from icalendar import Calendar
