@@ -1,9 +1,7 @@
 from io import BufferedReader, BufferedWriter
-from io import TextIOWrapper
 from datetime import datetime
 from icalendar import Calendar
 
-import icalendar
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -26,6 +24,7 @@ kept = 0
 
 for event in currentCal.subcomponents:
     if event.name != 'VEVENT':
+        archiveCal.add_component(event)
         continue
     dtend = event.get('dtend')
     if not hasattr(dtend, 'dt'):
