@@ -5,13 +5,16 @@ from icalendar import Calendar
 from argparse import ArgumentParser, FileType
 
 parser = ArgumentParser()
-parser.add_argument('inputFile', nargs=1, type=FileType('rb'))
+parser.add_argument('inputFile', nargs=1, type=FileType('rb'),
+                    help='''Input ICS file to read events from''')
 parser.add_argument('-n', '--newFile', nargs=1, type=FileType('wb'),
                     help='''if this parameters is provided, the archived items are not removed from the inputFile but 
                     added to a new file. Provide the file name using --newFile''')
-parser.add_argument('archiveFile', nargs=1, type=FileType('wb'))
+parser.add_argument('archiveFile', nargs=1, type=FileType('wb'),
+                    help='''Archive ICS file to output archived events into.''')
 parser.add_argument('date', nargs=1, type=lambda s: datetime.strptime(s, '%Y-%m-%d'),
-                    help='date in the format "Y-m-d". All events before this date are moved into the archive file')
+                    help='''date in the format "Y-m-d". All events before this date are moved into the archive file.
+                    Example: 2019-12-31''')
 args = parser.parse_args()
 inputFile: BufferedReader = args.inputFile[0]
 maxDate: datetime = args.date[0]
