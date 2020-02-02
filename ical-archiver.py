@@ -1,13 +1,14 @@
 from io import BufferedReader, BufferedWriter
 from datetime import datetime
 from icalendar import Calendar
+from argparse import ArgumentParser, FileType
 
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('inputFile', nargs=1, type=argparse.FileType('rb'))
-parser.add_argument('newFile', nargs=1, type=argparse.FileType('wb'))
-parser.add_argument('archiveFile', nargs=1, type=argparse.FileType('wb'))
+parser = ArgumentParser()
+parser.add_argument('inputFile', nargs=1, type=FileType('rb'))
+parser.add_argument('-n', '--newFile', nargs=1, type=FileType('wb'),
+                    help='''if this parameters is provided, the archived items are not removed from the inputFile but 
+                    added to a new file. Provide the file name using --newFile''')
+parser.add_argument('archiveFile', nargs=1, type=FileType('wb'))
 parser.add_argument('date', nargs=1, type=lambda s: datetime.strptime(s, '%Y-%m-%d'),
                     help='date in the format "Y-m-d". All events before this date are moved into the archive file')
 args = parser.parse_args()
@@ -28,10 +29,9 @@ for event in currentCal.subcomponents:
         continue
     dtend = event.get('dtend')
     if not hasattr(dtend, 'dt'):
-        print(event.get('summary') + " has no end")
         continue
     dtendDt = datetime.combine(dtend.dt, datetime.min.time())
-    if (dtendDt < maxDate):
+    if dtendDt < maxDate:
         archiveCal.add_component(event)
         count += 1
     else:
@@ -42,7 +42,10 @@ for event in archiveCal.subcomponents:
         continue
     currentCal.subcomponents.remove(event)
 
-newFile: BufferedWriter = args.newFile[0]
+try:
+    newFile = args.newFile[0]
+except TypeError:
+    newFile = open(args.inputFile[0].name, 'wb')
 newFile.write(currentCal.to_ical(False))
 newFile.close()
 
